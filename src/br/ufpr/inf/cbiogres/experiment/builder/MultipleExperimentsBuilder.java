@@ -92,8 +92,8 @@ public class MultipleExperimentsBuilder {
         executionTimeFileNamePattern = "TIME_%execution.txt";
         executions = 30;
     }
-    
-    public MultipleExperiments buildConventionalExperiments() throws JMException, BuilderHandlerException{
+
+    public MultipleExperiments buildConventionalExperiments() throws JMException, BuilderHandlerException {
         BuilderHandler rootHandler = new ProblemHandler(problems);
         rootHandler
                 .setSuccessor(new AlgorithmHandler(algorithmsEnums))
@@ -106,16 +106,15 @@ public class MultipleExperimentsBuilder {
                 .setSuccessor(new MutationProbabilityHandler(mutationProbabilities))
                 .setSuccessor(new MaxEvaluationHandler(maxEvaluations))
                 .setSuccessor(new ExecutionHandler(executions));
-        return build(rootHandler);
+        ExperimentBuilder experimentBuilder = new ExperimentBuilder();
+        List<Experiment> experiments = rootHandler.handleRequest(experimentBuilder, experimentNamePattern, outputPathPattern, variableFileNamePattern, objectiveFileNamePattern, executionTimeFileNamePattern);
+
+        return buildMultipleExperimentsObject(experiments);
     }
 
-    private MultipleExperiments build(BuilderHandler rootHandler) throws JMException, BuilderHandlerException {
-        MultipleExperiments multipleExperiments = new MultipleExperiments();
-        
-        ExperimentBuilder experimentBuilder = new ExperimentBuilder();
-        List<Experiment> experimentList = rootHandler.handleRequest(experimentBuilder, experimentNamePattern, outputPathPattern, variableFileNamePattern, objectiveFileNamePattern, executionTimeFileNamePattern);
-        multipleExperiments.addAllExperiments(experimentList);
-        
+    private MultipleExperiments buildMultipleExperimentsObject(List<Experiment> experiments) throws JMException, BuilderHandlerException {
+        MultipleExperiments multipleExperiments = new MultipleExperiments(experiments);
+
         if (multipleExperimentsDescription != null) {
             multipleExperiments.setDescription(multipleExperimentsDescription);
         }

@@ -1,6 +1,5 @@
 package br.ufpr.inf.cbiogres.experiment;
 
-import br.ufpr.inf.cbiogres.experiment.Experiment;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +34,10 @@ public class MultipleExperiments {
         this(description, new ArrayList<>());
     }
 
+    public MultipleExperiments(List<Experiment> experiments) {
+        this("Unknown", experiments);
+    }
+
     public MultipleExperiments(String description, List<Experiment> experiments) {
         this(description, experiments, "experiment/", "VAR_ALL.txt", "FUN_ALL.txt", "TIME_ALL.txt");
     }
@@ -57,6 +60,23 @@ public class MultipleExperiments {
                 .map(entry -> new MultipleExperiments(entry.getKey().toString(), entry.getValue()))
                 .collect(Collectors.toList());
         return grouped;
+    }
+    
+    public MultipleExperiments union(List<MultipleExperiments> multipleExperiments) {
+        MultipleExperiments united = new MultipleExperiments();
+        for (MultipleExperiments multipleExperiment : multipleExperiments) {
+            united = united.union(multipleExperiment);
+        }
+        return united;
+    }
+    
+    public MultipleExperiments union(MultipleExperiments multipleExperiments) {
+        MultipleExperiments united = new MultipleExperiments();
+        
+        united.addAllExperiments(this.experiments);
+        united.addAllExperiments(multipleExperiments.getExperiments());
+        
+        return united;
     }
 
     public void printExperimentsVariables() {
