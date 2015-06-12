@@ -1,5 +1,6 @@
 ### Project Specific ###
-/src/jmetal/
+src/jmetal/
+experiment/
 
 ### Windows ###
 # Windows image file caches
@@ -110,3 +111,4 @@ local.properties
 
 # TeXlipse plugin
 .texlipse
+!/src/br/ufpr/inf/cbiogres/experiment/

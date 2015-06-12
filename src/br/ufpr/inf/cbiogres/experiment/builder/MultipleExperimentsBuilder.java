@@ -2,6 +2,20 @@ package br.ufpr.inf.cbiogres.experiment.builder;
 
 import br.ufpr.inf.cbiogres.experiment.MultipleExperiments;
 import br.ufpr.inf.cbiogres.enums.AlgorithmEnum;
+import br.ufpr.inf.cbiogres.experiment.Experiment;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.AlgorithmHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.ArchiveSizeHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.BuilderHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.BuilderHandlerException;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.CrossoverOperatorHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.CrossoverProbabilityHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.ExecutionHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.MaxEvaluationHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.MutationOperatorHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.MutationProbabilityHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.PopulationSizeHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.ProblemHandler;
+import br.ufpr.inf.cbiogres.experiment.builder.chain.SelectionOperatorHandler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,61 +92,30 @@ public class MultipleExperimentsBuilder {
         executionTimeFileNamePattern = "TIME_%execution.txt";
         executions = 30;
     }
+    
+    public MultipleExperiments buildConventionalExperiments() throws JMException, BuilderHandlerException{
+        BuilderHandler rootHandler = new ProblemHandler(problems);
+        rootHandler
+                .setSuccessor(new AlgorithmHandler(algorithmsEnums))
+                .setSuccessor(new ArchiveSizeHandler(archiveSizes))
+                .setSuccessor(new SelectionOperatorHandler(selectionOperators))
+                .setSuccessor(new CrossoverOperatorHandler(crossoverOperators))
+                .setSuccessor(new MutationOperatorHandler(mutationOperators))
+                .setSuccessor(new PopulationSizeHandler(populationSizes))
+                .setSuccessor(new CrossoverProbabilityHandler(crossoverProbabilities))
+                .setSuccessor(new MutationProbabilityHandler(mutationProbabilities))
+                .setSuccessor(new MaxEvaluationHandler(maxEvaluations))
+                .setSuccessor(new ExecutionHandler(executions));
+        return build(rootHandler);
+    }
 
-    public MultipleExperiments build() throws JMException {
-        ExperimentBuilder experimentBuilder = new ExperimentBuilder();
+    private MultipleExperiments build(BuilderHandler rootHandler) throws JMException, BuilderHandlerException {
         MultipleExperiments multipleExperiments = new MultipleExperiments();
-        for (Problem problem : problems) {
-            experimentBuilder.setProblem(problem);
-            for (AlgorithmEnum algorithmEnum : algorithmsEnums) {
-                experimentBuilder.setAlgorithm(algorithmEnum);
-                for (String selectionOperator : selectionOperators) {
-                    experimentBuilder.setSelectionOperator(selectionOperator);
-                    for (String crossoverOperator : crossoverOperators) {
-                        experimentBuilder.setCrossoverOperator(crossoverOperator);
-                        for (String mutationOperator : mutationOperators) {
-                            experimentBuilder.setMutationOperator(mutationOperator);
-                            for (Integer populationSize : populationSizes) {
-                                experimentBuilder.setPopulationSize(populationSize);
-                                for (Double crossoverProbabiity : crossoverProbabilities) {
-                                    experimentBuilder.setCrossoverProbability(crossoverProbabiity);
-                                    for (Double mutationProbability : mutationProbabilities) {
-                                        experimentBuilder.setMutationProbability(mutationProbability);
-                                        for (Integer maxEvaluations : maxEvaluations) {
-                                            experimentBuilder.setMaxEvaluations(maxEvaluations);
-                                            for (int execution = 0; execution < executions; execution++) {
-                                                experimentBuilder.setExecutionNumber(execution);
-
-                                                if (algorithmEnum.hasArchive()) {
-                                                    for (Integer archiveSize : archiveSizes) {
-                                                        experimentBuilder.setArchiveSize(archiveSize);
-                                                        experimentBuilder
-                                                                .setExperimentNamePattern(experimentNamePattern)
-                                                                .setOutputPathPattern(outputPathPattern)
-                                                                .setVariableFileNamePattern(variableFileNamePattern)
-                                                                .setObjectiveFileNamePattern(objectiveFileNamePattern)
-                                                                .setExecutionTimeFileNamePattern(executionTimeFileNamePattern);
-                                                        multipleExperiments.addExperiment(experimentBuilder.build());
-                                                    }
-                                                } else {
-                                                    experimentBuilder
-                                                            .setExperimentNamePattern(experimentNamePattern)
-                                                            .setOutputPathPattern(outputPathPattern)
-                                                            .setVariableFileNamePattern(variableFileNamePattern)
-                                                            .setObjectiveFileNamePattern(objectiveFileNamePattern)
-                                                            .setExecutionTimeFileNamePattern(executionTimeFileNamePattern);
-                                                    multipleExperiments.addExperiment(experimentBuilder.build());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        
+        ExperimentBuilder experimentBuilder = new ExperimentBuilder();
+        List<Experiment> experimentList = rootHandler.handleRequest(experimentBuilder, experimentNamePattern, outputPathPattern, variableFileNamePattern, objectiveFileNamePattern, executionTimeFileNamePattern);
+        multipleExperiments.addAllExperiments(experimentList);
+        
         if (multipleExperimentsDescription != null) {
             multipleExperiments.setDescription(multipleExperimentsDescription);
         }

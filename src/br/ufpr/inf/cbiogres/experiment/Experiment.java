@@ -5,13 +5,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jmetal.core.Algorithm;
 import jmetal.core.SolutionSet;
 import jmetal.util.JMException;
 
-public class Experiment implements Runnable {
+public class Experiment implements Callable<Boolean> {
 
     private String name;
     private SolutionSet result;
@@ -42,16 +43,18 @@ public class Experiment implements Runnable {
     }
 
     @Override
-    public void run() {
+    public Boolean call() throws Exception {
         try {
             long initTime = System.currentTimeMillis();
             result = algorithm.execute();
             executionTime = System.currentTimeMillis() - initTime;
+            return true;
         } catch (JMException ex) {
             Logger.getLogger(Experiment.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Experiment.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
 
     public boolean printVariables() throws IOException {
