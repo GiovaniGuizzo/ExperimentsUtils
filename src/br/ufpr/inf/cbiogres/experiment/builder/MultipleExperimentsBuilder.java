@@ -1,7 +1,10 @@
 package br.ufpr.inf.cbiogres.experiment.builder;
 
 import br.ufpr.inf.cbiogres.experiment.MultipleExperiments;
-import br.ufpr.inf.cbiogres.enums.AlgorithmEnum;
+import br.ufpr.inf.cbiogres.factory.enums.AlgorithmEnum;
+import br.ufpr.inf.cbiogres.factory.enums.CrossoverOperatorEnum;
+import br.ufpr.inf.cbiogres.factory.enums.MutationOperatorEnum;
+import br.ufpr.inf.cbiogres.factory.enums.SelectionOperatorEnum;
 import br.ufpr.inf.cbiogres.experiment.Experiment;
 import br.ufpr.inf.cbiogres.experiment.builder.chain.AlgorithmHandler;
 import br.ufpr.inf.cbiogres.experiment.builder.chain.ArchiveSizeHandler;
@@ -20,17 +23,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jmetal.core.Problem;
-import jmetal.util.JMException;
+import javax.management.JMException;
+import org.uma.jmetal.problem.Problem;
 
 public class MultipleExperimentsBuilder {
 
     private final List<Problem> problems;
     private final List<AlgorithmEnum> algorithmsEnums;
 
-    private final List<String> selectionOperators;
-    private final List<String> crossoverOperators;
-    private final List<String> mutationOperators;
+    private final List<SelectionOperatorEnum> selectionOperators;
+    private final List<CrossoverOperatorEnum> crossoverOperators;
+    private final List<MutationOperatorEnum> mutationOperators;
 
     private final List<Integer> populationSizes;
     private final List<Integer> archiveSizes;
@@ -133,17 +136,17 @@ public class MultipleExperimentsBuilder {
         return multipleExperiments;
     }
 
-    public MultipleExperimentsBuilder addSelectionOperator(String selectionOperator) {
+    public MultipleExperimentsBuilder addSelectionOperator(SelectionOperatorEnum selectionOperator) {
         selectionOperators.add(selectionOperator);
         return this;
     }
 
-    public MultipleExperimentsBuilder removeSelectionOperator(String selectionOperator) {
+    public MultipleExperimentsBuilder removeSelectionOperator(SelectionOperatorEnum selectionOperator) {
         selectionOperators.remove(selectionOperator);
         return this;
     }
 
-    public MultipleExperimentsBuilder addAllSelectionOperators(Collection<? extends String> selectionOperators) {
+    public MultipleExperimentsBuilder addAllSelectionOperators(Collection<? extends SelectionOperatorEnum> selectionOperators) {
         this.selectionOperators.addAll(selectionOperators);
         return this;
     }
@@ -213,17 +216,17 @@ public class MultipleExperimentsBuilder {
         return this;
     }
 
-    public MultipleExperimentsBuilder addMutationOperator(String mutationOperator) {
+    public MultipleExperimentsBuilder addMutationOperator(MutationOperatorEnum mutationOperator) {
         mutationOperators.add(mutationOperator);
         return this;
     }
 
-    public MultipleExperimentsBuilder removeMutationOperator(String mutationOperator) {
+    public MultipleExperimentsBuilder removeMutationOperator(MutationOperatorEnum mutationOperator) {
         mutationOperators.remove(mutationOperator);
         return this;
     }
 
-    public MultipleExperimentsBuilder addAllMutationOperators(Collection<? extends String> mutationOperators) {
+    public MultipleExperimentsBuilder addAllMutationOperators(Collection<? extends MutationOperatorEnum> mutationOperators) {
         this.mutationOperators.addAll(mutationOperators);
         return this;
     }
@@ -273,17 +276,17 @@ public class MultipleExperimentsBuilder {
         return this;
     }
 
-    public MultipleExperimentsBuilder addCrossoverOperator(String crossoverOperator) {
+    public MultipleExperimentsBuilder addCrossoverOperator(CrossoverOperatorEnum crossoverOperator) {
         crossoverOperators.add(crossoverOperator);
         return this;
     }
 
-    public MultipleExperimentsBuilder removeCrossoverOperator(String crossoverOperator) {
+    public MultipleExperimentsBuilder removeCrossoverOperator(CrossoverOperatorEnum crossoverOperator) {
         crossoverOperators.remove(crossoverOperator);
         return this;
     }
 
-    public MultipleExperimentsBuilder addAllCrossoverOperators(Collection<? extends String> crossoverOperators) {
+    public MultipleExperimentsBuilder addAllCrossoverOperators(Collection<? extends CrossoverOperatorEnum> crossoverOperators) {
         this.crossoverOperators.addAll(crossoverOperators);
         return this;
     }
@@ -415,15 +418,15 @@ public class MultipleExperimentsBuilder {
         return algorithmsEnums;
     }
 
-    public List<String> getSelectionOperators() {
+    public List<SelectionOperatorEnum> getSelectionOperators() {
         return selectionOperators;
     }
 
-    public List<String> getCrossoverOperators() {
+    public List<CrossoverOperatorEnum> getCrossoverOperators() {
         return crossoverOperators;
     }
 
-    public List<String> getMutationOperators() {
+    public List<MutationOperatorEnum> getMutationOperators() {
         return mutationOperators;
     }
 

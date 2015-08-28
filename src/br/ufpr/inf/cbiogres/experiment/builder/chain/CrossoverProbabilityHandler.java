@@ -4,7 +4,7 @@ import br.ufpr.inf.cbiogres.experiment.Experiment;
 import br.ufpr.inf.cbiogres.experiment.builder.ExperimentBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import jmetal.util.JMException;
+import javax.management.JMException;
 
 public class CrossoverProbabilityHandler extends BuilderHandler<List<Double>> {
 

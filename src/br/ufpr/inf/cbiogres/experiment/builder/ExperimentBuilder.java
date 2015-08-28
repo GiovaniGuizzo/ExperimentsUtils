@@ -1,26 +1,33 @@
 package br.ufpr.inf.cbiogres.experiment.builder;
 
-import br.ufpr.inf.cbiogres.enums.AlgorithmEnum;
+import br.ufpr.inf.cbiogres.factory.enums.AlgorithmEnum;
+import br.ufpr.inf.cbiogres.factory.enums.CrossoverOperatorEnum;
+import br.ufpr.inf.cbiogres.factory.enums.MutationOperatorEnum;
+import br.ufpr.inf.cbiogres.factory.enums.SelectionOperatorEnum;
 import br.ufpr.inf.cbiogres.experiment.Experiment;
 import br.ufpr.inf.cbiogres.factory.AlgorithmFactory;
-import java.util.HashMap;
-import jmetal.core.Algorithm;
-import jmetal.core.Problem;
-import jmetal.operators.crossover.CrossoverFactory;
-import jmetal.operators.mutation.MutationFactory;
-import jmetal.operators.selection.SelectionFactory;
-import jmetal.util.JMException;
+import br.ufpr.inf.cbiogres.factory.CrossoverOperatorFactory;
+import br.ufpr.inf.cbiogres.factory.MutationOperatorFactory;
+import br.ufpr.inf.cbiogres.factory.SelectionOperatorFactory;
+import java.util.List;
+import javax.management.JMException;
+import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.operator.CrossoverOperator;
+import org.uma.jmetal.operator.MutationOperator;
+import org.uma.jmetal.operator.SelectionOperator;
+import org.uma.jmetal.problem.Problem;
+import org.uma.jmetal.solution.Solution;
 
-public class ExperimentBuilder {
+public class ExperimentBuilder<S extends Solution<?>> {
 
     private String experimentName;
     private int executionNumber;
 
-    private Problem problem;
+    private Problem<S> problem;
     private AlgorithmEnum algorithmEnum;
-    private String selectionOperator;
-    private String crossoverOperator;
-    private String mutationOperator;
+    private SelectionOperatorEnum selectionOperator;
+    private CrossoverOperatorEnum crossoverOperator;
+    private MutationOperatorEnum mutationOperator;
 
     private int populationSize;
     private int archiveSize;
@@ -41,23 +48,13 @@ public class ExperimentBuilder {
         executionNumber = 1;
     }
 
-    public Experiment build() throws JMException {
-        Algorithm algorithm = AlgorithmFactory.getAlgorithm(algorithmEnum, problem);
-        algorithm.setInputParameter("populationSize", populationSize);
-        algorithm.setInputParameter("archiveSize", archiveSize);
-        algorithm.setInputParameter("maxEvaluations", maxEvaluations);
+    public Experiment<S> build() throws JMException {
+        SelectionOperator<List<S>, S> selectionOperatorObject = SelectionOperatorFactory.getSelectionoperator(this.selectionOperator);
+        CrossoverOperator<S> crossoverOperatorObject = CrossoverOperatorFactory.getCrossoverOperator(this.crossoverOperator, crossoverProbability);
+        MutationOperator<S> mutationOperatorObject = MutationOperatorFactory.getMutationOperator(this.mutationOperator, mutationProbability);
 
-        HashMap parameters = new HashMap();
-        parameters.put("probability", crossoverProbability);
-        algorithm.addOperator("crossover", CrossoverFactory.getCrossoverOperator(crossoverOperator, parameters));
-
-        parameters = new HashMap();
-        parameters.put("probability", mutationProbability);
-        algorithm.addOperator("mutation", MutationFactory.getMutationOperator(mutationOperator, parameters));
-
-        algorithm.addOperator("selection", SelectionFactory.getSelectionOperator(selectionOperator, parameters));
-
-        Experiment experiment = new Experiment(algorithm);
+        Algorithm<List<S>> algorithm = AlgorithmFactory.getAlgorithm(algorithmEnum, problem, selectionOperatorObject, crossoverOperatorObject, mutationOperatorObject, maxEvaluations, populationSize);
+        Experiment<S> experiment = new Experiment(algorithm);
         if (experimentName != null) {
             experiment.setName(experimentName);
         }
@@ -81,7 +78,7 @@ public class ExperimentBuilder {
         return executionNumber;
     }
 
-    public ExperimentBuilder setExecutionNumber(int executionNumber) {
+    public ExperimentBuilder<S> setExecutionNumber(int executionNumber) {
         this.executionNumber = executionNumber;
         return this;
     }
@@ -90,16 +87,16 @@ public class ExperimentBuilder {
         return experimentName;
     }
 
-    public ExperimentBuilder setExperimentName(String experimentName) {
+    public ExperimentBuilder<S> setExperimentName(String experimentName) {
         this.experimentName = experimentName;
         return this;
     }
 
-    public Problem getProblem() {
+    public Problem<S> getProblem() {
         return problem;
     }
 
-    public ExperimentBuilder setProblem(Problem problem) {
+    public ExperimentBuilder setProblem(Problem<S> problem) {
         this.problem = problem;
         return this;
     }
@@ -108,34 +105,34 @@ public class ExperimentBuilder {
         return algorithmEnum;
     }
 
-    public ExperimentBuilder setAlgorithm(AlgorithmEnum algorithmEnum) {
+    public ExperimentBuilder<S> setAlgorithm(AlgorithmEnum algorithmEnum) {
         this.algorithmEnum = algorithmEnum;
         return this;
     }
 
-    public String getSelectionOperator() {
+    public SelectionOperatorEnum getSelectionOperator() {
         return selectionOperator;
     }
 
-    public ExperimentBuilder setSelectionOperator(String selectionOperator) {
+    public ExperimentBuilder<S> setSelectionOperator(SelectionOperatorEnum selectionOperator) {
         this.selectionOperator = selectionOperator;
         return this;
     }
 
-    public String getCrossoverOperator() {
+    public CrossoverOperatorEnum getCrossoverOperator() {
         return crossoverOperator;
     }
 
-    public ExperimentBuilder setCrossoverOperator(String crossoverOperator) {
+    public ExperimentBuilder<S> setCrossoverOperator(CrossoverOperatorEnum crossoverOperator) {
         this.crossoverOperator = crossoverOperator;
         return this;
     }
 
-    public String getMutationOperator() {
+    public MutationOperatorEnum getMutationOperator() {
         return mutationOperator;
     }
 
-    public ExperimentBuilder setMutationOperator(String mutationOperator) {
+    public ExperimentBuilder<S> setMutationOperator(MutationOperatorEnum mutationOperator) {
         this.mutationOperator = mutationOperator;
         return this;
     }
@@ -144,7 +141,7 @@ public class ExperimentBuilder {
         return populationSize;
     }
 
-    public ExperimentBuilder setPopulationSize(int populationSize) {
+    public ExperimentBuilder<S> setPopulationSize(int populationSize) {
         this.populationSize = populationSize;
         return this;
     }
@@ -153,7 +150,7 @@ public class ExperimentBuilder {
         return archiveSize;
     }
 
-    public ExperimentBuilder setArchiveSize(int archiveSize) {
+    public ExperimentBuilder<S> setArchiveSize(int archiveSize) {
         this.archiveSize = archiveSize;
         return this;
     }
@@ -162,7 +159,7 @@ public class ExperimentBuilder {
         return maxEvaluations;
     }
 
-    public ExperimentBuilder setMaxEvaluations(int maxEvaluations) {
+    public ExperimentBuilder<S> setMaxEvaluations(int maxEvaluations) {
         this.maxEvaluations = maxEvaluations;
         return this;
     }
@@ -171,7 +168,7 @@ public class ExperimentBuilder {
         return crossoverProbability;
     }
 
-    public ExperimentBuilder setCrossoverProbability(double crossoverProbability) {
+    public ExperimentBuilder<S> setCrossoverProbability(double crossoverProbability) {
         this.crossoverProbability = crossoverProbability;
         return this;
     }
@@ -180,7 +177,7 @@ public class ExperimentBuilder {
         return mutationProbability;
     }
 
-    public ExperimentBuilder setMutationProbability(double mutationProbability) {
+    public ExperimentBuilder<S> setMutationProbability(double mutationProbability) {
         this.mutationProbability = mutationProbability;
         return this;
     }
@@ -189,7 +186,7 @@ public class ExperimentBuilder {
         return outputPath;
     }
 
-    public ExperimentBuilder setOutputPath(String outputPath) {
+    public ExperimentBuilder<S> setOutputPath(String outputPath) {
         this.outputPath = outputPath;
         return this;
     }
@@ -198,7 +195,7 @@ public class ExperimentBuilder {
         return variableFileName;
     }
 
-    public ExperimentBuilder setVariableFileName(String variableFileName) {
+    public ExperimentBuilder<S> setVariableFileName(String variableFileName) {
         this.variableFileName = variableFileName;
         return this;
     }
@@ -207,7 +204,7 @@ public class ExperimentBuilder {
         return objectiveFileName;
     }
 
-    public ExperimentBuilder setObjectiveFileName(String objectiveFileName) {
+    public ExperimentBuilder<S> setObjectiveFileName(String objectiveFileName) {
         this.objectiveFileName = objectiveFileName;
         return this;
     }
@@ -216,32 +213,32 @@ public class ExperimentBuilder {
         return executionTimeFileName;
     }
 
-    public ExperimentBuilder setExecutionTimeFileName(String executionTimeFileName) {
+    public ExperimentBuilder<S> setExecutionTimeFileName(String executionTimeFileName) {
         this.executionTimeFileName = executionTimeFileName;
         return this;
     }
 
-    public ExperimentBuilder setOutputPathPattern(String outputPathPattern) {
+    public ExperimentBuilder<S> setOutputPathPattern(String outputPathPattern) {
         this.outputPath = evaluatePattern(outputPathPattern);
         return this;
     }
 
-    public ExperimentBuilder setExperimentNamePattern(String experimentNamePattern) {
+    public ExperimentBuilder<S> setExperimentNamePattern(String experimentNamePattern) {
         this.experimentName = evaluatePattern(experimentNamePattern);
         return this;
     }
 
-    public ExperimentBuilder setVariableFileNamePattern(String variableFileNamePattern) {
+    public ExperimentBuilder<S> setVariableFileNamePattern(String variableFileNamePattern) {
         this.variableFileName = evaluatePattern(variableFileNamePattern);
         return this;
     }
 
-    public ExperimentBuilder setObjectiveFileNamePattern(String objectiveFileNamePattern) {
+    public ExperimentBuilder<S> setObjectiveFileNamePattern(String objectiveFileNamePattern) {
         this.objectiveFileName = evaluatePattern(objectiveFileNamePattern);
         return this;
     }
 
-    public ExperimentBuilder setExecutionTimeFileNamePattern(String executionTimeFileName) {
+    public ExperimentBuilder<S> setExecutionTimeFileNamePattern(String executionTimeFileName) {
         this.executionTimeFileName = evaluatePattern(executionTimeFileName);
         return this;
     }
@@ -251,10 +248,10 @@ public class ExperimentBuilder {
             String replacedString = pattern
                     .replaceAll("%experimentName", experimentName)
                     .replaceAll("%problem", problem.getName())
-                    .replaceAll("%algorithm", algorithmEnum.toString())
-                    .replaceAll("%selectionOperator", selectionOperator)
-                    .replaceAll("%crossoverOperator", crossoverOperator)
-                    .replaceAll("%mutationOperator", mutationOperator)
+                    .replaceAll("%algorithm", algorithmEnum.getName())
+                    .replaceAll("%selectionOperator", selectionOperator.getName())
+                    .replaceAll("%crossoverOperator", crossoverOperator.getName())
+                    .replaceAll("%mutationOperator", mutationOperator.getName())
                     .replaceAll("%populationSize", String.valueOf(populationSize))
                     .replaceAll("%crossoverProbability", String.valueOf(crossoverProbability))
                     .replaceAll("%mutationProbability", String.valueOf(mutationProbability))

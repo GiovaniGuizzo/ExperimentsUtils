@@ -4,18 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jmetal.core.Algorithm;
-import jmetal.core.SolutionSet;
-import jmetal.util.JMException;
+import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.fileoutput.SolutionSetOutput;
 
-public class Experiment implements Callable<Boolean> {
+public class Experiment<S extends Solution<?>> implements Callable<Boolean> {
 
     private String name;
-    private SolutionSet result;
+    private List<S> result;
     private long executionTime;
 
     private String outputPath;
@@ -23,17 +22,17 @@ public class Experiment implements Callable<Boolean> {
     private String objectiveFileName;
     private String executionTimeFileName;
 
-    private Algorithm algorithm;
+    private Algorithm<List<S>> algorithm;
 
-    public Experiment(Algorithm algorithm) {
+    public Experiment(Algorithm<List<S>> algorithm) {
         this("Unknown", algorithm);
     }
 
-    public Experiment(String name, Algorithm algorithm) {
+    public Experiment(String name, Algorithm<List<S>> algorithm) {
         this(name, "experiment/", "VAR.txt", "FUN.txt", "TIME.txt", algorithm);
     }
 
-    public Experiment(String name, String outputPath, String variableFileName, String objectiveFileName, String executionTimeFileName, Algorithm algorithm) {
+    public Experiment(String name, String outputPath, String variableFileName, String objectiveFileName, String executionTimeFileName, Algorithm<List<S>> algorithm) {
         this.name = name;
         this.outputPath = outputPath;
         this.variableFileName = variableFileName;
@@ -44,32 +43,26 @@ public class Experiment implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        try {
-            long initTime = System.currentTimeMillis();
-            result = algorithm.execute();
-            executionTime = System.currentTimeMillis() - initTime;
-            return true;
-        } catch (JMException ex) {
-            Logger.getLogger(Experiment.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Experiment.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
+        long initTime = System.currentTimeMillis();
+        algorithm.run();
+        executionTime = System.currentTimeMillis() - initTime;
+        result = algorithm.getResult();
+        return true;
     }
 
     public boolean printVariables() throws IOException {
         if (outputPath != null && variableFileName != null) {
             Files.createDirectories(Paths.get(outputPath));
-            result.printVariablesToFile(outputPath + File.separator + variableFileName);
+            SolutionSetOutput.printVariablesToFile(result, outputPath + File.separator + variableFileName);
             return true;
         }
         return false;
     }
 
     public boolean printObjectives() throws IOException {
-        if (outputPath != null && variableFileName != null) {
+        if (outputPath != null && objectiveFileName != null) {
             Files.createDirectories(Paths.get(outputPath));
-            result.printObjectivesToFile(outputPath + File.separator + objectiveFileName);
+            SolutionSetOutput.printVariablesToFile(result, outputPath + File.separator + objectiveFileName);
             return true;
         }
         return false;
@@ -97,7 +90,7 @@ public class Experiment implements Callable<Boolean> {
         return flag == 0;
     }
 
-    //<editor-fold defaultstate="expanded" desc="Getters and Setters">
+    //<editor-fold defaultstate="collapsed" desc="Getters and Setters">
     public String getName() {
         return name;
     }
@@ -122,7 +115,7 @@ public class Experiment implements Callable<Boolean> {
         this.algorithm = algorithm;
     }
 
-    public SolutionSet getResult() {
+    public List<S> getResult() {
         return result;
     }
 
@@ -155,7 +148,7 @@ public class Experiment implements Callable<Boolean> {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="expanded" desc="Equals and Hash Code">
+    //<editor-fold defaultstate="collapsed" desc="Equals and Hash Code">
     @Override
     public int hashCode() {
         int hash = 5;

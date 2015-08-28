@@ -1,11 +1,11 @@
 package br.ufpr.inf.cbiogres.experiment.builder.chain;
 
-import br.ufpr.inf.cbiogres.enums.AlgorithmEnum;
+import br.ufpr.inf.cbiogres.factory.enums.AlgorithmEnum;
 import br.ufpr.inf.cbiogres.experiment.Experiment;
 import br.ufpr.inf.cbiogres.experiment.builder.ExperimentBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import jmetal.util.JMException;
+import javax.management.JMException;
 
 public class AlgorithmHandler extends BuilderHandler<List<AlgorithmEnum>> {
 

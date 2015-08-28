@@ -6,15 +6,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import jmetal.core.Solution;
-import jmetal.core.SolutionSet;
-import jmetal.util.NonDominatedSolutionList;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.SolutionListUtils;
+import org.uma.jmetal.util.fileoutput.SolutionSetOutput;
 
 public class MultipleExperiments {
 
@@ -61,7 +60,7 @@ public class MultipleExperiments {
                 .collect(Collectors.toList());
         return grouped;
     }
-    
+
     public MultipleExperiments union(List<MultipleExperiments> multipleExperiments) {
         MultipleExperiments united = new MultipleExperiments();
         for (MultipleExperiments multipleExperiment : multipleExperiments) {
@@ -69,14 +68,32 @@ public class MultipleExperiments {
         }
         return united;
     }
-    
+
     public MultipleExperiments union(MultipleExperiments multipleExperiments) {
         MultipleExperiments united = new MultipleExperiments();
-        
+
         united.addAllExperiments(this.experiments);
         united.addAllExperiments(multipleExperiments.getExperiments());
-        
+
         return united;
+    }
+
+    public boolean printKnownFrontVariables() throws IOException {
+        if (outputPath != null && variableFileName != null) {
+            Files.createDirectories(Paths.get(outputPath));
+            SolutionSetOutput.printVariablesToFile(getKnownFront(), outputPath + File.separator + variableFileName);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean printKnownFrontObjectives() throws IOException {
+        if (outputPath != null && objectiveFileName != null) {
+            Files.createDirectories(Paths.get(outputPath));
+            SolutionSetOutput.printObjectivesToFile(getKnownFront(), outputPath + File.separator + objectiveFileName);
+            return true;
+        }
+        return false;
     }
 
     public void printExperimentsVariables() {
@@ -89,15 +106,6 @@ public class MultipleExperiments {
         });
     }
 
-    public boolean printKnownFrontVariables() throws IOException {
-        if (outputPath != null && variableFileName != null) {
-            Files.createDirectories(Paths.get(outputPath));
-            getKnownFront().printVariablesToFile(outputPath + File.separator + variableFileName);
-            return true;
-        }
-        return false;
-    }
-
     public void printExperimentsObjectives() {
         experiments.stream().forEach(experiment -> {
             try {
@@ -106,15 +114,6 @@ public class MultipleExperiments {
                 Logger.getLogger(MultipleExperiments.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-    }
-
-    public boolean printKnownFrontObjectives() throws IOException {
-        if (outputPath != null && objectiveFileName != null) {
-            Files.createDirectories(Paths.get(outputPath));
-            getKnownFront().printObjectivesToFile(outputPath + File.separator + objectiveFileName);
-            return true;
-        }
-        return false;
     }
 
     public void printExperimentsExecutionTimes() {
@@ -168,15 +167,12 @@ public class MultipleExperiments {
         printKnownFrontInfoAndAllExecutionTimes();
     }
 
-    public NonDominatedSolutionList getKnownFront() {
-        NonDominatedSolutionList solutionList = new NonDominatedSolutionList();
-        experiments.stream().forEach((experiment) -> {
-            for (Iterator<Solution> iterator = experiment.getResult().iterator(); iterator.hasNext();) {
-                Solution next = iterator.next();
-                solutionList.add(next);
-            }
-        });
-        return solutionList;
+    public List<? extends Solution<?>> getKnownFront() {
+        List<Solution<?>> solutionList = new ArrayList<>();
+        experiments
+                .stream()
+                .forEach(experiment -> solutionList.addAll(experiment.getResult()));
+        return SolutionListUtils.getNondominatedSolutions(solutionList);
     }
 
     public String getDescription() {
@@ -187,8 +183,12 @@ public class MultipleExperiments {
         this.description = description;
     }
 
-    public List<SolutionSet> getResults() {
-        return experiments.stream().map((experiment) -> experiment.getResult()).collect(Collectors.toList());
+    public List<List<Solution>> getResults() {
+        List<List<Solution>> solutionList = new ArrayList<>();
+        for (Experiment experiment : experiments) {
+            solutionList.add(experiment.getResult());
+        }
+        return solutionList;
     }
 
     public double getAverageExecutionTime() {
@@ -239,7 +239,7 @@ public class MultipleExperiments {
         return experiments.remove(experiment);
     }
 
-    public boolean addAllExperiments(Collection<? extends Experiment> experiments) {
+    public boolean addAllExperiments(Collection<Experiment> experiments) {
         return this.experiments.addAll(experiments);
     }
 
