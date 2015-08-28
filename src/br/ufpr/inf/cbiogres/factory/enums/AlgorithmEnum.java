@@ -2,7 +2,9 @@ package br.ufpr.inf.cbiogres.factory.enums;
 
 public enum AlgorithmEnum {
 
-    NSGAII("NSGA-II", false), SPEA2("SPEA2", true);
+    NSGAII("NSGA-II", false),
+    DYNAMIC_NSGAII("DynamicNSGAII", false),
+    SPEA2("SPEA2", true);
 
     private final String name;
     private final boolean hasArchive;

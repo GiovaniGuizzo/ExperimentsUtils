@@ -80,16 +80,7 @@ public class MultipleExperimentsBuilder {
                 + "_%mutationProbability"
                 + "_%maxEvaluations"
                 + File.separator;
-        experimentNamePattern = "%algorithm"
-                + "_%selectionOperator"
-                + "_%crossoverOperator"
-                + "_%mutationOperator"
-                + "_%populationSize"
-                + "_%archiveSize"
-                + "_%crossoverProbability"
-                + "_%mutationProbability"
-                + "_%maxEvaluations"
-                + "_%problem";
+        experimentNamePattern = outputPathPattern;
         variableFileNamePattern = "VAR_%execution.txt";
         objectiveFileNamePattern = "FUN_%execution.txt";
         executionTimeFileNamePattern = "TIME_%execution.txt";

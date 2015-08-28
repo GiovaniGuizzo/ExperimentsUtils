@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.fileoutput.SolutionSetOutput;
 
@@ -23,22 +24,24 @@ public class Experiment<S extends Solution<?>> implements Callable<Boolean> {
     private String executionTimeFileName;
 
     private Algorithm<List<S>> algorithm;
+    private Problem<S> problem;
 
-    public Experiment(Algorithm<List<S>> algorithm) {
-        this("Unknown", algorithm);
+    public Experiment(Problem<S> problem, Algorithm<List<S>> algorithm) {
+        this("Unknown", problem, algorithm);
     }
 
-    public Experiment(String name, Algorithm<List<S>> algorithm) {
-        this(name, "experiment/", "VAR.txt", "FUN.txt", "TIME.txt", algorithm);
+    public Experiment(String name, Problem<S> problem, Algorithm<List<S>> algorithm) {
+        this(name, "experiment/", "VAR.txt", "FUN.txt", "TIME.txt", problem, algorithm);
     }
 
-    public Experiment(String name, String outputPath, String variableFileName, String objectiveFileName, String executionTimeFileName, Algorithm<List<S>> algorithm) {
+    public Experiment(String name, String outputPath, String variableFileName, String objectiveFileName, String executionTimeFileName, Problem<S> problem, Algorithm<List<S>> algorithm) {
         this.name = name;
         this.outputPath = outputPath;
         this.variableFileName = variableFileName;
         this.objectiveFileName = objectiveFileName;
         this.executionTimeFileName = executionTimeFileName;
         this.algorithm = algorithm;
+        this.problem = problem;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class Experiment<S extends Solution<?>> implements Callable<Boolean> {
     public boolean printObjectives() throws IOException {
         if (outputPath != null && objectiveFileName != null) {
             Files.createDirectories(Paths.get(outputPath));
-            SolutionSetOutput.printVariablesToFile(result, outputPath + File.separator + objectiveFileName);
+            SolutionSetOutput.printObjectivesToFile(result, outputPath + File.separator + objectiveFileName);
             return true;
         }
         return false;
@@ -107,7 +110,7 @@ public class Experiment<S extends Solution<?>> implements Callable<Boolean> {
         this.outputPath = outputPath;
     }
 
-    public Algorithm getAlgorithm() {
+    public Algorithm<List<S>> getAlgorithm() {
         return algorithm;
     }
 
@@ -146,8 +149,12 @@ public class Experiment<S extends Solution<?>> implements Callable<Boolean> {
     public void setExecutionTimeFileName(String executionTimeFileName) {
         this.executionTimeFileName = executionTimeFileName;
     }
-    //</editor-fold>
 
+    public Problem<S> getProblem() {
+        return problem;
+    }
+    //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="Equals and Hash Code">
     @Override
     public int hashCode() {

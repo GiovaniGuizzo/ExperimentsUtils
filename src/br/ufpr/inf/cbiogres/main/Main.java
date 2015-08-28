@@ -19,28 +19,33 @@ public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, JMException, IOException, InterruptedException, BuilderHandlerException {
         MultipleExperimentsBuilder builder = new MultipleExperimentsBuilder();
-        builder
-                .addProblem(new TSP("a280.tsp"))
+        builder.addProblem(new TSP("a280.tsp"))
+                .addProblem(new TSP("ali535.tsp"))
+                .addProblem(new TSP("att48.tsp"))
+                .addProblem(new TSP("att532.tsp"))
+                .addProblem(new TSP("bayg29.tsp"))
+                .addProblem(new TSP("bays29.tsp"))
                 .addAlgorithmEnum(AlgorithmEnum.NSGAII)
-                .addAlgorithmEnum(AlgorithmEnum.SPEA2)
+                .addAlgorithmEnum(AlgorithmEnum.DYNAMIC_NSGAII)
                 .addSelectionOperator(SelectionOperatorEnum.BINARY_TOURNAMENT)
                 .addCrossoverOperator(CrossoverOperatorEnum.PMX_CROSSOVER)
                 .addCrossoverProbability(1.0)
                 .addMutationOperator(MutationOperatorEnum.SWAP_MUTATION_OPERATOR)
-                .addMutationProbability(0.2)
+                .addMutationProbability(0.1)
                 .addMaxEvaluations(10000)
                 .addPopulationSize(100)
-                .addArchiveSize(100)
-                .setExecutions(10);
+                .setExecutions(30);
         MultipleExperiments multipleExperiments = builder.buildConventionalExperiments();
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(3);
-        List experiments = multipleExperiments.getExperiments();
-        threadPool.invokeAll(experiments);
+        ExecutorService threadPool = Executors.newFixedThreadPool(1);
+        threadPool.invokeAll((List) multipleExperiments.getExperiments());
         threadPool.shutdown();
         threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
-        multipleExperiments.printExperimentsResultInfo();
+        List<MultipleExperiments> algorithmGroups = multipleExperiments.groupBy(experiment -> experiment.getName());
+        for (MultipleExperiments group : algorithmGroups) {
+            group.printEverything();
+        }
     }
 
 }

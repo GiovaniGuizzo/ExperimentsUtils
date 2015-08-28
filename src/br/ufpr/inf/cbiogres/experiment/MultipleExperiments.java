@@ -38,7 +38,7 @@ public class MultipleExperiments {
     }
 
     public MultipleExperiments(String description, List<Experiment> experiments) {
-        this(description, experiments, "experiment/", "VAR_ALL.txt", "FUN_ALL.txt", "TIME_ALL.txt");
+        this(description, experiments, description, "VAR_ALL.txt", "FUN_ALL.txt", "TIME_ALL.txt");
     }
 
     public MultipleExperiments(String description, List<Experiment> experiments, String outputPath, String variableFileName, String objectiveFileName, String executionTimeFileName) {

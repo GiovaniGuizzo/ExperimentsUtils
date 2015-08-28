@@ -54,7 +54,7 @@ public class ExperimentBuilder<S extends Solution<?>> {
         MutationOperator<S> mutationOperatorObject = MutationOperatorFactory.getMutationOperator(this.mutationOperator, mutationProbability);
 
         Algorithm<List<S>> algorithm = AlgorithmFactory.getAlgorithm(algorithmEnum, problem, selectionOperatorObject, crossoverOperatorObject, mutationOperatorObject, maxEvaluations, populationSize);
-        Experiment<S> experiment = new Experiment(algorithm);
+        Experiment<S> experiment = new Experiment(problem, algorithm);
         if (experimentName != null) {
             experiment.setName(experimentName);
         }

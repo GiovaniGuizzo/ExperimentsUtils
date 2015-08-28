@@ -3,6 +3,7 @@ package br.ufpr.inf.cbiogres.factory;
 import br.ufpr.inf.cbiogres.factory.enums.AlgorithmEnum;
 import java.util.List;
 import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.algorithm.builder.DynamicNSGAIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.spea2.SPEA2Builder;
 import org.uma.jmetal.operator.CrossoverOperator;
@@ -24,6 +25,12 @@ public class AlgorithmFactory {
             case NSGAII:
                 return new NSGAIIBuilder(problem, crossoverOperator, mutationOperator)
                         .setMaxIterations(maxEvaluations / populationSize)
+                        .setPopulationSize(populationSize)
+                        .setSelectionOperator(selectionOperator)
+                        .build();
+            case DYNAMIC_NSGAII:
+                return new DynamicNSGAIIBuilder<>(problem, crossoverOperator, mutationOperator)
+                        .setMaxEvaluations(maxEvaluations)
                         .setPopulationSize(populationSize)
                         .setSelectionOperator(selectionOperator)
                         .build();
