@@ -49,7 +49,7 @@ public class ExperimentBuilder<S extends Solution<?>> {
     }
 
     public Experiment<S> build() throws JMException {
-        SelectionOperator<List<S>, S> selectionOperatorObject = SelectionOperatorFactory.getSelectionoperator(this.selectionOperator);
+        SelectionOperator<List<S>, List<S>> selectionOperatorObject = SelectionOperatorFactory.getSelectionoperator(this.selectionOperator, populationSize * 2);
         CrossoverOperator<S> crossoverOperatorObject = CrossoverOperatorFactory.getCrossoverOperator(this.crossoverOperator, crossoverProbability);
         MutationOperator<S> mutationOperatorObject = MutationOperatorFactory.getMutationOperator(this.mutationOperator, mutationProbability);
 

@@ -16,7 +16,7 @@ public class AlgorithmFactory {
 
     public static <S extends Solution<?>> Algorithm<List<S>> getAlgorithm(AlgorithmEnum algorithm,
             Problem<S> problem,
-            SelectionOperator<List<S>, S> selectionOperator,
+            SelectionOperator<List<S>, List<S>> selectionOperator,
             CrossoverOperator<S> crossoverOperator,
             MutationOperator<S> mutationOperator,
             int maxEvaluations,
